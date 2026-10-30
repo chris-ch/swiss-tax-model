@@ -17,8 +17,6 @@ The tool is a single web page. It needs no installation, no build step and no in
 
 Open **https://chris-ch.github.io/swiss-tax-model/**
 
-> This link works once GitHub Pages is enabled for the repository (see [Publish it online](#publish-it-online)).
-
 ### Option 2: run it on your computer
 
 1. Download the project, either:
