@@ -1,0 +1,269 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Income vs Wealth Tax</title>
+  <meta name="description" content="Illustrative comparison of a progressive income tax and a regressive wealth tax funding a Switzerland-like state.">
+  <style>
+    :root {
+      --bg: #f7f6f2;
+      --surface: #ffffff;
+      --surface-2: #f0eee8;
+      --text: #1d1f23;
+      --muted: #5f636b;
+      --border: #dcd9d0;
+      --accent: #2b5fa8;
+      --a: #2f6fbf;          /* Model A */
+      --b: #d0662a;          /* Model B */
+      --a-soft: #2f6fbf22;
+      --b-soft: #d0662a22;
+      --warn-bg: #fff3d6;
+      --warn-text: #6b4a00;
+      --warn-border: #f0d18a;
+      --grid: #e6e3db;
+      --shadow: 0 1px 2px rgba(0,0,0,.04), 0 2px 8px rgba(0,0,0,.04);
+      color-scheme: light;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root:not([data-theme="light"]) {
+        --bg: #141518; --surface: #1c1e22; --surface-2: #24272c; --text: #e8e6e1; --muted: #a1a4ab;
+        --border: #34373d; --accent: #7aa7e6; --a: #6fa3e8; --b: #f08d55; --a-soft: #6fa3e82a; --b-soft: #f08d552a;
+        --warn-bg: #3a2f14; --warn-text: #f4d58d; --warn-border: #5c4a1d; --grid: #2c2f34; --shadow: none;
+        color-scheme: dark;
+      }
+    }
+    :root[data-theme="dark"] {
+      --bg: #141518; --surface: #1c1e22; --surface-2: #24272c; --text: #e8e6e1; --muted: #a1a4ab;
+      --border: #34373d; --accent: #7aa7e6; --a: #6fa3e8; --b: #f08d55; --a-soft: #6fa3e82a; --b-soft: #f08d552a;
+      --warn-bg: #3a2f14; --warn-text: #f4d58d; --warn-border: #5c4a1d; --grid: #2c2f34; --shadow: none;
+      color-scheme: dark;
+    }
+
+    * { box-sizing: border-box; }
+    html { -webkit-text-size-adjust: 100%; }
+    body {
+      margin: 0; background: var(--bg); color: var(--text);
+      font: 15px/1.5 system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    }
+    a { color: var(--accent); }
+    h1, h2, h3 { line-height: 1.25; margin: 0; }
+    h1 { font-size: 1.6rem; letter-spacing: -0.01em; }
+    h2 { font-size: 1.15rem; }
+    h3 { font-size: 0.95rem; }
+    p { margin: 0.4rem 0; }
+    .muted { color: var(--muted); }
+    .small { font-size: 0.85rem; }
+    .num { font-variant-numeric: tabular-nums; }
+
+    header.top { max-width: 1400px; margin: 0 auto; padding: 24px 16px 8px; }
+    header.top .lead { max-width: 75ch; color: var(--muted); margin-top: 6px; }
+    .badge { display: inline-block; font-size: 0.75rem; padding: 2px 8px; border-radius: 99px; background: var(--surface-2); border: 1px solid var(--border); color: var(--muted); vertical-align: middle; margin-left: 8px; }
+    .legend-inline { display: inline-flex; gap: 14px; flex-wrap: wrap; margin-top: 8px; font-size: 0.9rem; }
+    .swatch { display: inline-block; width: 10px; height: 10px; border-radius: 2px; margin-right: 6px; vertical-align: baseline; }
+    .sw-a { background: var(--a); } .sw-b { background: var(--b); }
+
+    .layout { max-width: 1400px; margin: 0 auto; padding: 8px 16px 48px; display: grid; grid-template-columns: 300px minmax(0, 1fr); gap: 20px; align-items: start; }
+    @media (max-width: 900px) { .layout { grid-template-columns: minmax(0, 1fr); } }
+
+    .panel { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; box-shadow: var(--shadow); }
+    aside.controls { position: sticky; top: 12px; max-height: calc(100vh - 24px); overflow: auto; padding: 14px; }
+    @media (max-width: 900px) { aside.controls { position: static; max-height: none; } }
+    .ctrl-group { padding: 10px 0; border-bottom: 1px solid var(--border); }
+    .ctrl-group:last-child { border-bottom: 0; }
+    .ctrl-group h3 { display: flex; align-items: center; gap: 6px; margin-bottom: 6px; }
+    .field { display: grid; grid-template-columns: 1fr 112px; gap: 8px; align-items: center; margin: 6px 0; }
+    .field label { font-size: 0.85rem; }
+    .field .unit { display: block; font-size: 0.72rem; color: var(--muted); }
+    input[type=number], select {
+      width: 100%; padding: 5px 7px; border-radius: 6px; border: 1px solid var(--border);
+      background: var(--surface-2); color: var(--text); font: inherit; font-size: 0.9rem; font-variant-numeric: tabular-nums;
+    }
+    input[type=number]:focus, select:focus { outline: 2px solid var(--accent); outline-offset: 0; }
+    button {
+      font: inherit; font-size: 0.85rem; padding: 6px 12px; border-radius: 6px; border: 1px solid var(--border);
+      background: var(--surface-2); color: var(--text); cursor: pointer;
+    }
+    button:hover { border-color: var(--accent); }
+    .btn-row { display: flex; gap: 8px; flex-wrap: wrap; padding-top: 10px; }
+
+    .results { display: flex; flex-direction: column; gap: 20px; min-width: 0; }
+    section.panel { padding: 16px; min-width: 0; }
+    .section-head { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; flex-wrap: wrap; margin-bottom: 10px; }
+    .section-head p { margin: 2px 0 0; }
+
+    .cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px; }
+    .card { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 12px 14px; box-shadow: var(--shadow); }
+    .card .k { font-size: 0.8rem; color: var(--muted); }
+    .card .v { font-size: 1.45rem; font-weight: 600; font-variant-numeric: tabular-nums; margin-top: 2px; }
+    .card .s { font-size: 0.8rem; color: var(--muted); margin-top: 2px; }
+    .card.a { border-top: 3px solid var(--a); }
+    .card.b { border-top: 3px solid var(--b); }
+
+    .warnings { display: flex; flex-direction: column; gap: 6px; }
+    .warn { background: var(--warn-bg); color: var(--warn-text); border: 1px solid var(--warn-border); border-radius: 8px; padding: 8px 12px; font-size: 0.88rem; }
+    .warn b { font-weight: 600; }
+
+    .charts-2 { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px; }
+    .chart { position: relative; width: 100%; }
+    .chart svg { display: block; width: 100%; height: auto; overflow: visible; }
+    .chart .axis text, .chart text { fill: var(--muted); font-size: 11px; font-family: inherit; }
+    .chart .gridline { stroke: var(--grid); stroke-width: 1; }
+    .chart .axisline { stroke: var(--border); }
+    .tooltip {
+      position: absolute; pointer-events: none; background: var(--surface); border: 1px solid var(--border);
+      border-radius: 6px; padding: 6px 8px; font-size: 0.8rem; box-shadow: 0 4px 14px rgba(0,0,0,.12);
+      white-space: nowrap; z-index: 5; display: none; font-variant-numeric: tabular-nums;
+    }
+    .chart-title { font-size: 0.9rem; font-weight: 600; margin-bottom: 2px; }
+    .chart-sub { font-size: 0.8rem; color: var(--muted); margin-bottom: 6px; }
+
+    .table-wrap { overflow-x: auto; border: 1px solid var(--border); border-radius: 8px; }
+    table { border-collapse: collapse; width: 100%; font-size: 0.85rem; font-variant-numeric: tabular-nums; }
+    th, td { padding: 6px 10px; text-align: right; white-space: nowrap; border-bottom: 1px solid var(--border); }
+    th { background: var(--surface-2); font-weight: 600; font-size: 0.78rem; color: var(--muted); position: sticky; top: 0; }
+    th:first-child, td:first-child { text-align: left; position: sticky; left: 0; background: var(--surface); z-index: 1; }
+    th:first-child { background: var(--surface-2); z-index: 2; }
+    tr:last-child td { border-bottom: 0; }
+    td.a { color: var(--a); } td.b { color: var(--b); }
+    th.grp-a { border-bottom: 2px solid var(--a); } th.grp-b { border-bottom: 2px solid var(--b); }
+    .bar { display: inline-block; height: 8px; border-radius: 2px; vertical-align: middle; }
+
+    table.heat td { text-align: center; min-width: 92px; font-weight: 500; }
+    table.heat td.na { color: var(--muted); font-weight: 400; }
+    .heat-legend { display: flex; align-items: center; gap: 8px; font-size: 0.8rem; color: var(--muted); margin-top: 8px; flex-wrap: wrap; }
+    .heat-legend .grad { width: 160px; height: 10px; border-radius: 3px; background: linear-gradient(90deg, var(--a), var(--surface-2), var(--b)); border: 1px solid var(--border); }
+
+    details.panel > summary { cursor: pointer; padding: 14px 16px; font-weight: 600; list-style: none; }
+    details.panel > summary::-webkit-details-marker { display: none; }
+    details.panel > summary::before { content: "▸"; display: inline-block; width: 1em; transition: transform .15s; }
+    details.panel[open] > summary::before { transform: rotate(90deg); }
+    details.panel .inner { padding: 0 16px 16px; }
+    table.cells input { width: 80px; padding: 3px 5px; font-size: 0.82rem; }
+    .grid-fields { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 0 24px; }
+    .diag { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 4px 24px; font-size: 0.85rem; margin: 10px 0 14px; }
+    .diag div { display: flex; justify-content: space-between; gap: 8px; border-bottom: 1px dashed var(--border); padding: 3px 0; }
+
+    ul.notes { padding-left: 1.2em; margin: 6px 0; }
+    ul.notes li { margin: 4px 0; }
+    .busy { opacity: .6; transition: opacity .1s; }
+    footer { max-width: 1400px; margin: 0 auto; padding: 0 16px 32px; color: var(--muted); font-size: 0.8rem; }
+  </style>
+</head>
+<body>
+  <header class="top">
+    <h1>Income vs Wealth Tax <span class="badge">illustrative, not a forecast</span></h1>
+    <p class="lead">Two ways of funding a Switzerland-like state with a single tax. Both replace today's taxes, VAT included, and must raise the same revenue. Change the settings and see who pays what.</p>
+    <div class="legend-inline">
+      <span><span class="swatch sw-a"></span><b>Model A</b>: progressive income tax</span>
+      <span><span class="swatch sw-b"></span><b>Model B</b>: regressive wealth tax with a floor and a cap</span>
+    </div>
+  </header>
+
+  <main class="layout">
+    <aside class="controls panel" id="controls" aria-label="Settings"></aside>
+
+    <div class="results" id="results">
+      <div class="cards" id="cards"></div>
+      <div class="warnings" id="warnings"></div>
+
+      <section class="panel">
+        <div class="section-head">
+          <div>
+            <h2>Who pays more under B?</h2>
+            <p class="muted small">Household types by age (rows) and composition × children (columns).</p>
+          </div>
+          <select id="heatMetric" aria-label="Heatmap measure">
+            <option value="diff">Average tax, B − A (CHF)</option>
+            <option value="share">Share of households paying more under B</option>
+            <option value="pct">Tax as % of income, B − A (points)</option>
+          </select>
+        </div>
+        <div class="table-wrap" id="heatmap"></div>
+        <div class="heat-legend" id="heatLegend"></div>
+      </section>
+
+      <section class="panel">
+        <div class="section-head">
+          <div>
+            <h2>Taxes by household category</h2>
+            <p class="muted small">Averages per household. "% of income" and "% of wealth" are total tax over the category's total income or wealth.</p>
+          </div>
+          <select id="groupBy" aria-label="Group by">
+            <option value="cell">All 28 household types</option>
+            <option value="age">By age</option>
+            <option value="comp">By composition</option>
+            <option value="kids">By children</option>
+          </select>
+        </div>
+        <div class="table-wrap" id="catTable"></div>
+      </section>
+
+      <section class="panel">
+        <div class="section-head">
+          <div>
+            <h2>Effective rates by percentile</h2>
+            <p class="muted small">Tax as % of income. The top bins are split finer (98–99, 99–99.5, 99.5–99.9, 99.9–100).</p>
+          </div>
+        </div>
+        <div class="charts-2">
+          <div><div class="chart-title">By income percentile</div><div class="chart-sub">Households ranked by income</div><div class="chart" id="curveIncome"></div></div>
+          <div><div class="chart-title">By wealth percentile</div><div class="chart-sub">Households ranked by net wealth incl. pensions</div><div class="chart" id="curveWealth"></div></div>
+        </div>
+      </section>
+
+      <section class="panel">
+        <div class="section-head">
+          <div>
+            <h2>Tax schedules</h2>
+            <p class="muted small">After the solver has scaled each model to the revenue target.</p>
+          </div>
+        </div>
+        <div class="charts-2">
+          <div><div class="chart-title">Model A: rates by equivalised income</div><div class="chart-sub">Marginal and average rate</div><div class="chart" id="schedA"></div></div>
+          <div><div class="chart-title">Model B: tax as % of wealth</div><div class="chart-sub">Shows the floor cliff, the falling rate and the cap</div><div class="chart" id="schedB"></div></div>
+        </div>
+      </section>
+
+      <section class="panel">
+        <div class="section-head">
+          <div>
+            <h2>Households whose wealth tax exceeds their income</h2>
+            <p class="muted small" id="flagIntro"></p>
+          </div>
+        </div>
+        <div class="table-wrap" id="flagTable"></div>
+      </section>
+
+      <details class="panel" id="advanced">
+        <summary>Calibration and population data</summary>
+        <div class="inner">
+          <p class="muted small">Stylised inputs. The tool scales them so that the totals below match published figures (all approximate; check them against the sources before relying on them). Changing these rebuilds the synthetic population.</p>
+          <div class="grid-fields" id="calibFields"></div>
+          <h3 style="margin-top:14px">Calibration result</h3>
+          <div class="diag" id="diag"></div>
+          <h3>Household types</h3>
+          <p class="muted small">Income median: gross household income. Wealth median: non-pension net wealth among households that have any. Spreads are lognormal σ. Pension wealth (BVG, 3a) is added on top, computed from age and income.</p>
+          <div class="table-wrap" id="cellTable"></div>
+        </div>
+      </details>
+
+      <section class="panel">
+        <h2>How it works</h2>
+        <ul class="notes small">
+          <li><b>Revenue target</b>: consolidated tax-financed spending of Confederation, cantons and communes, net of non-tax revenue, plus the VAT share currently paid into AHV. Social insurances stay on the payroll.</li>
+          <li><b>Population</b>: 28 household types (age × single/couple × children). Each type gets a synthetic sample with correlated income and wealth (lognormal body, shared Pareto tail). Weights match household counts.</li>
+          <li><b>Model A</b>: marginal rate <i>t(x) = t<sub>max</sub>·(1 − (x₀/x)<sup>k</sup>)</i> on equivalised income (OECD-modified scale 1 / 0.5 / 0.3), taxable income = gross − employee social contributions. The solver finds t<sub>max</sub>.</li>
+          <li><b>Model B</b>: rate falls from r<sub>high</sub> at W<sub>low</sub> to r<sub>low</sub> at W<sub>high</sub>, on net wealth including BVG and 3a capital (present value of the BVG annuity after 65). Tax below T<sub>min</sub> is dropped; tax is capped at T<sub>max</sub> and kept non-decreasing in wealth. The solver scales both rates by one factor.</li>
+          <li><b>Static</b>: nobody changes behaviour. Treat results as orders of magnitude.</li>
+        </ul>
+        <p class="small">Full specification: <a href="doc/Tax%20Model%20Income%20vs%20Wealth%20%E2%80%94%20Model%20Definition.md">Model definition</a>.</p>
+      </section>
+    </div>
+  </main>
+  <footer>MIT licensed. All figures are stylised and approximate.</footer>
+
+  <script src="js/model.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>
